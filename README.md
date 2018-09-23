@@ -11,12 +11,13 @@ Pre-requisites
 * HMMER 3.1b2
 * vsearch
 
-If you have [conda](https://conda.io/docs/), you can install the dependencies and create an enviroment:
+If you have [conda](https://conda.io/docs/), you can install the dependencies and create an enviroment (after cloning the directory, see Installation):
 ```bash
 cd classify-genomes/env
-conda env create -n classify-genomes --file classify-genomes.yaml
-source activate classify-genomes
+conda env create -f classify-genomes.yaml
+source activate classify-genomes-env
 ```
+Note: type `source deactivate` to deactivate an active environment.
 
 Installation
 --------------
