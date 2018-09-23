@@ -1,3 +1,4 @@
+name: classify-genomes-env
 channels:
   - bioconda
   - defaults
@@ -9,5 +10,4 @@ dependencies:
   - perl
   - prodigal
   - hmmer
-
-- python=2.7.15
+  - python=2.7.15
