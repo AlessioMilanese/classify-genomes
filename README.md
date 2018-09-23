@@ -1,6 +1,6 @@
 classify-genomes
 ========
-This tool classify genomes sequences (as well as metagenomic assembled genomes) according to the [mOTUs taxonomy](https://github.com/motu-tool/mOTUs_v2). 
+This tool classify genomes sequences (as well as metagenomic assembled genome) according to the [mOTUs taxonomy](https://github.com/motu-tool/mOTUs_v2). 
 
 Pre-requisites
 --------------
