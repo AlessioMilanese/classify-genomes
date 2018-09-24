@@ -1,4 +1,4 @@
-name: classify-genomes
+name: classify-genomes-ENV
 channels:
   - bioconda
   - defaults

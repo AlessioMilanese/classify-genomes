@@ -16,7 +16,7 @@ If you have [conda](https://conda.io/docs/), you can install the dependencies an
 ```bash
 cd classify-genomes/env
 conda env create -f classify-genomes.yaml
-source activate classify-genomes
+source activate classify-genomes-ENV
 ```
 Note: type `source deactivate` to deactivate an active environment.
 
