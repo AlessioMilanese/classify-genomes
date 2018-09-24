@@ -94,6 +94,9 @@ def main(argv=None):
         sys.stderr.write("[E::main] Error: number of threads (-t) is less than 1\n")
         sys.exit(1)
 
+    # COG that we evaluate
+    marker_genes = {'COG0012':0, 'COG0016':1, 'COG0018':2, 'COG0172':3, 'COG0215':4, 'COG0495':5, 'COG0525':6, 'COG0533':7, 'COG0541':8, 'COG0552':9}
+
     # --------------------------------------------------------------------------
     #   1. EXTRACT GENES
     # --------------------------------------------------------------------------
@@ -111,9 +114,33 @@ def main(argv=None):
     if return_code: sys.exit(1)
 
     # save the genes to a file
+    genes_temp_file = tempfile.NamedTemporaryFile(delete=False, mode="w")
+    os.chmod(genes_temp_file.name, 0o644)
+    if args.verbose > 3:
+        sys.stderr.write("temp file with genes: "+genes_temp_file.name+"\n")
+
+    for i in marker_genes:
+        file_g = open(genes+"/tmp1/tmp2_markerGenes/"+i+".fna","r")
+        cont = 1
+        for k in file_g:
+            if k.startswith(">"):
+                genes_temp_file.write(">"+i+"_"+str(cont)+"\n")
+                cont = cont + 1
+            else:
+                genes_temp_file.write(k)
+
+    # close the temp file (but not deleted)
+    genes_temp_file.flush()
+    os.fsync(genes_temp_file.fileno())
+    genes_temp_file.close()
 
     # remove temp dir
     shutil.rmtree(os.path.abspath(os.path.join(genes)))
+
+    # --------------------------------------------------------------------------
+    #   2. MAP GENES TO DATABASE
+    # --------------------------------------------------------------------------
+    # now in genes_temp_file.name we have all the extracted genes
 
 
     return 0        # success
