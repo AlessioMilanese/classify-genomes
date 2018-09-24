@@ -94,6 +94,28 @@ def main(argv=None):
         sys.stderr.write("[E::main] Error: number of threads (-t) is less than 1\n")
         sys.exit(1)
 
+    # --------------------------------------------------------------------------
+    #   1. EXTRACT GENES
+    # --------------------------------------------------------------------------
+    # create a temp dir to save the intermediate results
+    genes = tempfile.mkdtemp()
+
+    find_genes = "python "+ relative_path + 'makePaddedMG.py ' + args.fasta_file
+    find_genes = find_genes + " " +genes+"/tmp1 tmp2 --OGType mOTU --padLength 0"
+    if args.verbose > 3:
+        sys.stderr.write("call: "+find_genes+"\n")
+
+    find_genesCMD = shlex.split(find_genes)
+    find_genes_cmd = subprocess.Popen(find_genesCMD)
+    return_code = find_genes_cmd.wait()
+    if return_code: sys.exit(1)
+
+    # save the genes to a file
+
+    # remove temp dir
+    shutil.rmtree(os.path.abspath(os.path.join(genes)))
+
+
     return 0        # success
 
 #-------------------------------- run main -------------------------------------
