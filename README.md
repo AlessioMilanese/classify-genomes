@@ -70,6 +70,8 @@ COG0495_1	428712 Jonquetella anthropi [C]
 COG0018_1	428712 Jonquetella anthropi [C]
 ```
 
+Let's analyse the result: the genome in the file `AWWC01.1.fsa_nt` is annotated as `428712 Jonquetella anthropi [C]` where the first number is the NCBI taxonomy id and after the first space there is the NCBI taxonomy name. The genome contains `9` marker genes (MGs) out of 10. The marker genes have the property to be present in single-copy in bacterial genomes, hence if the tool extract more than 10 MGs there might be problems with the genome that you are analysing. After that there is the information of the number of genes that support the consensus taxonomy (in this case `100%`). Finally, there is a list with the annotation of all the genes.  
+
 Command options
 --------------
 
