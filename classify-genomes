@@ -11,6 +11,7 @@ import subprocess
 import glob
 import multiprocessing
 import tempfile
+from collections import Counter
 
 
 # position of the script -------------------------------------------------------
@@ -68,6 +69,8 @@ def is_tool(name):
 # ------------------------------------------------------------------------------
 def main(argv=None):
 
+    devnull = open(os.devnull)
+
     parser = argparse.ArgumentParser(usage=msg(), formatter_class=CapitalisedHelpFormatter,add_help=False)
     parser.add_argument('fasta_file', action="store", default=None, help='fasta file')
     parser.add_argument('-v', action='store', type=int, default=None, dest='verbose', help='Verbose levels')
@@ -86,6 +89,9 @@ def main(argv=None):
     if (args.save_10_MGs is None): args.save_10_MGs = ""
     if (args.short_output is None): args.short_output = False
 
+    # name fasta file
+    fasta_name = args.fasta_file.split("/")[-1]
+
     # ---------------------- check general parameters --------------------------
     if args.verbose < 1:
         sys.stderr.write("[E::main] Error: verbose level (-v) is less than 1\n")
@@ -101,6 +107,8 @@ def main(argv=None):
     #   1. EXTRACT GENES
     # --------------------------------------------------------------------------
     # create a temp dir to save the intermediate results
+    if args.verbose > 2: sys.stderr.write("Extract genes\n")
+
     genes = tempfile.mkdtemp()
 
     # count the number of founded genes
@@ -113,7 +121,10 @@ def main(argv=None):
         sys.stderr.write("call: "+find_genes+"\n")
 
     find_genesCMD = shlex.split(find_genes)
-    find_genes_cmd = subprocess.Popen(find_genesCMD)
+    if args.verbose > 3:
+        find_genes_cmd = subprocess.Popen(find_genesCMD)
+    else:
+        find_genes_cmd = subprocess.Popen(find_genesCMD,stdout=devnull, stderr=devnull)
     return_code = find_genes_cmd.wait()
     if return_code: sys.exit(1)
 
@@ -146,6 +157,8 @@ def main(argv=None):
     #   2. MAP GENES TO DATABASE
     # --------------------------------------------------------------------------
     # now in genes_temp_file.name we have all the extracted genes
+    if args.verbose > 2: sys.stderr.write("Map genes to mOTUs database\n")
+
     vsearch_res = tempfile.NamedTemporaryFile(delete=False, mode="w")
     os.chmod(vsearch_res.name, 0o644)
     if args.verbose > 3:
@@ -153,7 +166,10 @@ def main(argv=None):
 
     map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.95 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
     map_genesCMD = shlex.split(map_genes)
-    map_genes_cmd = subprocess.Popen(map_genesCMD)
+    if args.verbose > 3:
+        map_genes_cmd = subprocess.Popen(map_genesCMD)
+    else:
+        map_genes_cmd = subprocess.Popen(map_genesCMD,stdout=devnull, stderr=devnull)
     return_code = map_genes_cmd.wait()
     if return_code:
         sys.stderr.write("Error: vsearch failed")
@@ -187,10 +203,107 @@ def main(argv=None):
     #   3. FIND MOTUS FROM THE MAPPED GENES
     # --------------------------------------------------------------------------
     # now in matches we have the motus database ids
+    if args.verbose > 2: sys.stderr.write("Find taxonomy\n")
 
     # load gene -> MGC
-    
+    f_gene2mgc = open(relative_path+"db_mOTU/mOTU.v2b.map","r")
+    gene2mgc = dict()
+    for i in f_gene2mgc:
+        all_v = i.rstrip().split("\t")
+        gene2mgc[all_v[0]] = all_v[3]
+    f_gene2mgc.close()
+    # load MGC -> mOTUs
+    f_mgc2motus = open(relative_path+"db_mOTU/mOTU-LG.map.tsv","r")
+    mgc2motu = dict()
+    for i in f_mgc2motus:
+        all_v = i.rstrip().split("\t")
+        mgc2motu[all_v[0]] = all_v[1]
+    f_mgc2motus.close()
+    # load ref-mOTUs taxonomy
+    tax = dict()
 
+    f_ref_tax = open(relative_path+"db_mOTU/prok-refdb-v11.0.0_specI-v2_taxonomy_v1.map","r")
+    for i in f_ref_tax:
+        all_v = i.rstrip().split("\t")
+        if all_v[1] != "not_profilable":
+            tax[all_v[1]] = all_v[8]
+    f_ref_tax.close()
+    # load meta-mOTUs taxonomy
+    f_meta_tax = open(relative_path+"db_mOTU/mOTULG.taxonomy","r")
+    for i in f_meta_tax:
+        all_v = i.rstrip().split("\t")
+        tax[all_v[0]] = all_v[7]
+    f_meta_tax.close()
+
+    # find match for the mapped genes
+    motus_match = dict()
+    for i in matches:
+        motu_m = mgc2motu[gene2mgc[matches[i]]]
+        if motu_m != "-1":
+            motus_match[i] = tax[motu_m]
+
+    # taxonomies
+    if len(motus_match) == 0:
+        best = "no match"
+        aggr_g = "NA"
+    else:
+        all_tax = dict(Counter(motus_match.values()))
+        max_agree = max(all_tax.values())
+        n_max = 0
+        for i in all_tax:
+            if all_tax[i] == max_agree:
+                n_max = n_max + 1
+                best = i
+        if n_max > 1:
+            best = "inconsistent"
+            aggr_g = "NA"
+        else:
+            aggr_g = str( ( max_agree/(sum(all_tax.values())) ) * 100 )+"%"
+
+
+
+    # general print
+    if args.output != "":
+        outfile = tempfile.NamedTemporaryFile(delete=False, mode="w")
+        os.chmod(outfile.name, 0o644)
+    else:
+        outfile = sys.stdout
+        if args.verbose > 2: sys.stderr.write("\nRESULT:\n")
+
+
+    if args.short_output: # print res in one line
+        outfile.write(fasta_name+"\t")
+        outfile.write(best+"\t")
+        outfile.write(str(sum(all_tax.values()))+"\t")
+        outfile.write(aggr_g)
+        for i in motus_match:
+            outfile.write("\t"+i+"\t"+motus_match[i])
+        outfile.write("\n")
+    else:
+        outfile.write("Fasta sequence: "+fasta_name+"\n")
+        outfile.write("Consensus taxonomy: "+best+"\n")
+        outfile.write("Number of detected genes: "+str(sum(all_tax.values()))+"\n")
+        outfile.write("Percentage of agreeing genes: "+aggr_g+"\n")
+        outfile.write("\nGene annotation: "+fasta_name+"\n")
+        for i in motus_match:
+            outfile.write(i+"\t"+motus_match[i]+"\n")
+
+    # move the temp file to the final destination ------------------------------
+    if args.output != "":
+        try:
+            outfile.flush()
+            os.fsync(outfile.fileno())
+            outfile.close()
+        except:
+            sys.stderr.write("[E::main] Error: failed to save the output file\n")
+            sys.exit(1)
+        try:
+            #os.rename(outfile.name,output) # atomic operation
+            shutil.move(outfile.name,args.output) #It is not atomic if the files are on different filsystems.
+        except:
+            sys.stderr.write("[E::main] Error: failed to save the output file\n")
+            sys.stderr.write("[E::main] you can find the file here:\n"+outfile.name+"\n")
+            sys.exit(1)
 
 
     return 0        # success
