@@ -69,3 +69,18 @@ COG0533_1	428712 Jonquetella anthropi [C]
 COG0495_1	428712 Jonquetella anthropi [C]
 COG0018_1	428712 Jonquetella anthropi [C]
 ```
+
+Command options
+--------------
+
+The tool expect as input a fasta file:
+```
+classify-genomes <fasta_file> [options]
+```
+
+The options are:
+* **`-t`** number of threads (default 1)
+* **`-v`** verbose level: 1=error, 2=warning, 3=message, 4+=debugging. Default is 3.
+* **`-o`** save result to a file. Default is standard output.
+* **`-m`** save the fasta sequence of the extracted marker genes.
+* **`-s`** print the result in a single line. Useful if you want to analyse many genomes and cat all the taxonomies.
