@@ -1,0 +1,14 @@
+name: classify-genomes
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+dependencies:
+  - vsearch
+  - samtools
+  - cdbtools
+  - bwa
+  - perl
+  - prodigal
+  - hmmer
+  - python=2.7.15

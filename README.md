@@ -1,10 +1,11 @@
 classify-genomes
 ========
-This tool classify genomes sequences (as well as metagenomic assembled genome) according to the [mOTUs taxonomy](https://github.com/motu-tool/mOTUs_v2). 
+This tool classify genomes sequences (as well as metagenomic assembled genome) according to the [mOTUs taxonomy](https://github.com/motu-tool/mOTUs_v2).
 
 Pre-requisites
 --------------
 * Perl 5.24.0
+* cdbtools
 * Prodigal 2.6.3
 * Python 2.7.12
 * SAMtools 1.3.1
@@ -15,7 +16,7 @@ If you have [conda](https://conda.io/docs/), you can install the dependencies an
 ```bash
 cd classify-genomes/env
 conda env create -f classify-genomes.yaml
-source activate classify-genomes-env
+source activate classify-genomes
 ```
 Note: type `source deactivate` to deactivate an active environment.
 

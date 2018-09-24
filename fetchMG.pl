@@ -9,7 +9,7 @@ use FindBin;
 $|++;
 
 my $usage = "
-       fetchMGs extracts the 40 single copy universal marker genes (decribed 
+       fetchMGs extracts the 40 single copy universal marker genes (decribed
        in Ciccarelli et al., Science, 2006 and Sorek et al., Science, 2007)
        from genomes and metagenomes in an easy and accurate manner.
 
@@ -20,25 +20,25 @@ Usage
        fetchMGs.pl -m|mode <extraction|calibration> [OPTIONS]
 
 Extraction mode
-       ./fetchMGs.pl [options] -m extraction <protein sequences> 
+       ./fetchMGs.pl [options] -m extraction <protein sequences>
            <protein sequences>           Multi-FASTA file with protein sequences from which universal single-copy marker genes should be extracted
            -o|outdir                     Output directory; default = \'output\'
-           -b|bitscore                   Path to bitscore cutoff file; 
+           -b|bitscore                   Path to bitscore cutoff file;
                                            default = \'\$pathInWhichThisScriptResides/lib/MG_BitScoreCutoffs.[allhits|verybesthit].txt\' (depending on -v option)
-           -l|library                    Path to directory that contains hmm models; 
+           -l|library                    Path to directory that contains hmm models;
                                            default = \'\$pathInWhichThisScriptResides/lib\'
            -p|protein_only               Set if nucleotide sequences file for <protein sequences> is not available
-           -d|dnaFastaFile               Multi-FASTA file with nucleotide sequences file for <protein sequences>; 
+           -d|dnaFastaFile               Multi-FASTA file with nucleotide sequences file for <protein sequences>;
 		                                   not neccesary if protein and nucleotide fasta file have the same name except .faa and .fna suffixes
-           -v|verybesthit_only           Only extract the best hit to each OG from each genome. 
-		                                   Recommended to use, if extracting sequences from reference genomes. 
+           -v|verybesthit_only           Only extract the best hit to each OG from each genome.
+		                                   Recommended to use, if extracting sequences from reference genomes.
                                            Please do not use for metagenomes.
                                            If this option is set fasta identifiers should be in the form: taxID.geneID and,
                                            if needed have \' project_id=XXX\' somewhere in the header
            -c|og_used                    Orthologous group id to be extracted; example: \'COG0012\'; default = \'all\'
            -t|threads                    Number of processors/threads to be used
-           -x|executables                Path to executables used by this script (hmmsearch; cdbfasta, cdbyank). 
-		                                   default = \'\$pathInWhichThisScriptResides/bin\' 
+           -x|executables                Path to executables used by this script (hmmsearch; cdbfasta, cdbyank).
+		                                   default = \'\$pathInWhichThisScriptResides/bin\'
 		                                   If set to \'\' will search for executables in \$PATH
 
 Calibration mode
@@ -46,11 +46,11 @@ Calibration mode
            <reference protein sequences> Multi-FASTA file with protein sequences that include marker genes (true positives)
            <true positives map>          Tab-delimited file with true positive protein identifiers and COG IDs
 
-           -o|outdir                     Output directory; default = \'calibration\'		   
-           -b|bitscore                   Path to bitscore cutoff file; 
+           -o|outdir                     Output directory; default = \'calibration\'
+           -b|bitscore                   Path to bitscore cutoff file;
                                            default = \'\$pathInWhichThisScriptResides/lib/MG_BitScoreCutoffs.uncalibrated.txt\'
-           -v|verybesthit_only           Use if calibrating for extraction using the -v option 
-										   
+           -v|verybesthit_only           Use if calibrating for extraction using the -v option
+
            The other options for \'-m extraction\' can also be used here.
 ";
 
@@ -156,7 +156,7 @@ if ( ( $mode eq "extraction" ) || ( $mode eq "calibration" ) ) {
 	}
 	else {
 		$strProteinFastaFileName = $ARGV[0];
-		
+
 		#protein file ends in .faa --> automatically generate $strDNAFastaFileName if not set before
 		if ( $strProteinFastaFileName =~ /.faa$/ ) {
 			my @file_array = split( "\/", $strProteinFastaFileName );
@@ -197,11 +197,11 @@ if ( ( $mode eq "extraction" ) || ( $mode eq "calibration" ) ) {
 		}
 	}
 	# check if a file named $strDNAFastaFileName exist; if not die
-	
+
 	if ( ( $protein_only == 0 ) &&  ( not (-e $strDNAFastaFileName ))) {
 		die $usage . "ERROR: Missing input dna fasta file\n";
 	}
-	
+
 }
 
 
@@ -330,7 +330,7 @@ sub runHmmerSearch {
 	my $strDomainOutput = $strOutfolder . "\/" . $strRunName . "." . $strCOGid . ".dom";
 	my $strHmmerOutput  = $strOutfolder . "\/" . $strRunName . "." . $strCOGid . ".out";
 
-	my $cmd = $bin . "hmmsearch --noali --cpu " . $intProcessors . " -o " . $strHmmerOutput . " --domtblout " . $strDomainOutput . " -T " . $floatCutoff . " " . $strHMMfile . " " . $strFastaFile;
+	my $cmd = "hmmsearch --noali --cpu " . $intProcessors . " -o " . $strHmmerOutput . " --domtblout " . $strDomainOutput . " -T " . $floatCutoff . " " . $strHMMfile . " " . $strFastaFile;
 
 	system($cmd);
 	return ($strDomainOutput);
@@ -420,7 +420,7 @@ sub filterResultsArray_besthitAmongCOGs {
 
 	my %hashGene2Results;
 	my %hashGene2Keep;
-	
+
 	for my $i ( 0 .. $#arrAllResults ) {
 
 		my $strQueryId      = $arrAllResults[$i][0];
@@ -433,13 +433,13 @@ sub filterResultsArray_besthitAmongCOGs {
 			my $floatPrevBitScore = $hashGene2Results{$strQueryId}[3];
 
 			if ( $floatBitscore > $floatPrevBitScore ) {
-				
+
 				$hashGene2Results{$strQueryId} = [ $strQueryId, $strTaxProjectID, $strCOGid, $floatBitscore ];
 				$hashGene2Keep{$strQueryId} =  1;
 			}
 			elsif ( $floatBitscore == $floatPrevBitScore ) {
 				if ($hashGene2Results{$strQueryId}[2] ne $strCOGid){
-				
+
 					$hashGene2Keep{$strQueryId} =  0;
 				}
 			}
@@ -469,7 +469,7 @@ sub filterResultsArray_besthitAmongCOGs {
 sub filterResultsArray_besthitAmongGenomes {
 
 	my %hashOG2Project2Results;
-	
+
 	for my $i ( 0 .. $#arrAllResults ) {
 
 		my $strQueryId      = $arrAllResults[$i][0];
@@ -483,7 +483,7 @@ sub filterResultsArray_besthitAmongGenomes {
 
 			if ( $floatBitscore > $floatPrevBitScore ) {
 				$hashOG2Project2Results{$strCOGid}{$strTaxProjectID} = [ $strQueryId, $strTaxProjectID, $strCOGid, $floatBitscore ];
-				
+
 			}
 		}
 		else {
@@ -516,11 +516,11 @@ sub printSequences {
 	my $strPrefix               = $_[2];
 
 	#indexing using cdbfasta
-	my $cmd = $bin . "cdbfasta $strProteinFastaFileName";
+	my $cmd = "cdbfasta $strProteinFastaFileName";
 	system $cmd;
 
 	if ( $protein_only == 0 ) {
-		my $cmd = $bin . "cdbfasta $strDNAFastaFileName";
+		my $cmd = "cdbfasta $strDNAFastaFileName";
 		system $cmd;
 	}
 
@@ -555,12 +555,12 @@ sub printSequences {
 
 	foreach my $strCurrentCOG (@arrCOGsIDs) {
 
-		my $cmd = "cat $strIDFilesOutdir/$strCurrentCOG.IDs.txt | " . $bin . "cdbyank $strProteinFastaFileName.cidx > ${outdir}\/${strCurrentCOG}.faa";
+		my $cmd = "cat $strIDFilesOutdir/$strCurrentCOG.IDs.txt | " . "cdbyank $strProteinFastaFileName.cidx > ${outdir}\/${strCurrentCOG}.faa";
 
 		system $cmd;
 
 		if ( $protein_only  == 0 ) {
-			$cmd = "cat $strIDFilesOutdir/$strCurrentCOG.IDs.txt | " . $bin . "cdbyank $strDNAFastaFileName.cidx > ${outdir}\/${strCurrentCOG}.fna";
+			$cmd = "cat $strIDFilesOutdir/$strCurrentCOG.IDs.txt | " . "cdbyank $strDNAFastaFileName.cidx > ${outdir}\/${strCurrentCOG}.fna";
 
 			system $cmd;
 		}
@@ -749,8 +749,8 @@ B<fetchMGs>
 
 =head1 Software description
 
-fetchMGs extracts the 40 single copy universal marker genes (decribed in 
-Ciccarelli et al., Science, 2006 and Sorek et al., Science, 2007) from genomes and 
+fetchMGs extracts the 40 single copy universal marker genes (decribed in
+Ciccarelli et al., Science, 2006 and Sorek et al., Science, 2007) from genomes and
 metagenomes in an easy and accurate manner. This is done by utilizing profile Hidden Markov
 Models (HMMs) trained on protein alignments of known members of the 40 MGs as well
 as calibrated cutoffs for each of the 40 MGs. Please note that these cutoffs are only
@@ -788,7 +788,7 @@ fetchMGs.pl -m|mode <I<extraction>|I<calibration>> [OPTIONS]
 
 =head1 Extraction mode
 
-./fetchMGs.pl [options] -m extraction <protein sequences> 
+./fetchMGs.pl [options] -m extraction <protein sequences>
 
 I<Required options>
 
@@ -826,7 +826,7 @@ Output directory; default = "output"
 
 =item -b|bitscore
 
-Path to bitscore cutoff file; Path to bitscore cutoff file; 
+Path to bitscore cutoff file; Path to bitscore cutoff file;
 default = "$pathInWhichThisScriptResides/lib/MG_BitScoreCutoffs.[allhits|verybesthit].txt" (depending on -v option)
 
 =back
@@ -840,7 +840,7 @@ default = "$pathInWhichThisScriptResides/lib/MG_BitScoreCutoffs.[allhits|verybes
 
 =item -l|library
 
-Path to directory that contains hmm models; 
+Path to directory that contains hmm models;
 default = "$pathInWhichThisScriptResides/lib"
 
 =back
@@ -867,7 +867,7 @@ Set if nucleotide sequences file for <protein sequences> is not available
 
 =item -d|dnaFastaFile
 
-Multi-FASTA file with nucleotide sequences file for <protein sequences>; 
+Multi-FASTA file with nucleotide sequences file for <protein sequences>;
 Not neccesary if protein and nucleotide fasta file have the same name except .faa and .fna suffixes
 
 =back
@@ -879,10 +879,10 @@ Not neccesary if protein and nucleotide fasta file have the same name except .fa
 
 =over
 
-=item -v|verybesthit_only 
+=item -v|verybesthit_only
 
 Only extract the best hit to each OG from each genome.
-Recommended to use, if extracting sequences from reference genomes. 
+Recommended to use, if extracting sequences from reference genomes.
 Please do not use for metagenomes.
 If this option is set fasta identifiers should be in the form: taxID.geneID and, if needed, have " project_id=XXX" somewhere in the header
 
@@ -924,10 +924,10 @@ Number of processors/threads to be used
 =item -x|executables
 
 Path to binaries used by this script. default = "" --> will search for variables in \$PATH
-Path to executables used by this script (hmmsearch; cdbfasta, cdbyank). 
-default = "$pathInWhichThisScriptResides/bin" 
+Path to executables used by this script (hmmsearch; cdbfasta, cdbyank).
+default = "$pathInWhichThisScriptResides/bin"
 If set to "" will search for executables in \$PATH
-										   
+
 =back
 
 =back
@@ -986,7 +986,7 @@ Output directory; default = "output"
 
 =item -b|bitscore
 
-Path to bitscore cutoff file; Path to bitscore cutoff file; 
+Path to bitscore cutoff file; Path to bitscore cutoff file;
 default = "$pathInWhichThisScriptResides/lib/MG_BitScoreCutoffs.uncalibrated.txt"
 
 =back
@@ -1028,10 +1028,8 @@ hmmsearch (HMMer3): http://hmmer.janelia.org/
 
 =head1 Author
 
-The B<fetchMGs> package was developed by Shinichi Sunagawa and Daniel R Mende (Bork Group, EMBL) (http://www.bork.embl.de). External software used by the B<fetchMGs> package are copyright respective authors. 
+The B<fetchMGs> package was developed by Shinichi Sunagawa and Daniel R Mende (Bork Group, EMBL) (http://www.bork.embl.de). External software used by the B<fetchMGs> package are copyright respective authors.
 
 =head1 Copyright
 
-Copyright (c) 2012 Shinichi Sunagawa, Daniel R Mende, and EMBL. fetchMGs is released under the GNU General Public Licence v3 (http://www.gnu.org/licenses/gpl.html). 
-
-
+Copyright (c) 2012 Shinichi Sunagawa, Daniel R Mende, and EMBL. fetchMGs is released under the GNU General Public Licence v3 (http://www.gnu.org/licenses/gpl.html).
