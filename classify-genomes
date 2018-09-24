@@ -103,8 +103,12 @@ def main(argv=None):
     # create a temp dir to save the intermediate results
     genes = tempfile.mkdtemp()
 
+    # count the number of founded genes
+    founded_genes = {'COG0012':0, 'COG0016':0, 'COG0018':0, 'COG0172':0, 'COG0215':0, 'COG0495':0, 'COG0525':0, 'COG0533':0, 'COG0541':0, 'COG0552':0}
+
+
     find_genes = "python "+ relative_path + 'makePaddedMG.py ' + args.fasta_file
-    find_genes = find_genes + " " +genes+"/tmp1 tmp2 --OGType mOTU --padLength 0"
+    find_genes = find_genes + " " +genes+"/tmp1 tmp2 --OGType mOTU --padLength 0 --numThreads "+str(args.threads)
     if args.verbose > 3:
         sys.stderr.write("call: "+find_genes+"\n")
 
@@ -126,6 +130,7 @@ def main(argv=None):
             if k.startswith(">"):
                 genes_temp_file.write(">"+i+"_"+str(cont)+"\n")
                 cont = cont + 1
+                founded_genes[i] = founded_genes[i] + 1 # update dict with the number of founded genes
             else:
                 genes_temp_file.write(k)
 
@@ -141,6 +146,51 @@ def main(argv=None):
     #   2. MAP GENES TO DATABASE
     # --------------------------------------------------------------------------
     # now in genes_temp_file.name we have all the extracted genes
+    vsearch_res = tempfile.NamedTemporaryFile(delete=False, mode="w")
+    os.chmod(vsearch_res.name, 0o644)
+    if args.verbose > 3:
+        sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
+
+    map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.95 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+    map_genesCMD = shlex.split(map_genes)
+    map_genes_cmd = subprocess.Popen(map_genesCMD)
+    return_code = map_genes_cmd.wait()
+    if return_code:
+        sys.stderr.write("Error: vsearch failed")
+        sys.exit(1)
+
+    # parse result from vsearch
+    matches = dict()
+    tp = open(vsearch_res.name,"r")
+    for i in tp:
+        if i.startswith(" Query "):
+            query = i.rstrip().split(">")[1]
+        if i.startswith("Target "):
+            matches[query] = i.rstrip().split(">")[1]
+    tp.close()
+
+    # remove file with the results from vsearch
+    os.remove(os.path.abspath(os.path.join(vsearch_res.name)))
+
+    # decide what to do with the genes file
+    if args.save_10_MGs != "": # save it somewhere
+        try:
+            shutil.move(genes_temp_file.name,args.save_10_MGs) #It is not atomic if the files are on different filsystems.
+        except:
+            sys.stderr.write("[E::main] Error: failed to save the marker genes sequences\n")
+            os.remove(os.path.abspath(os.path.join(genes_temp_file.name)))
+    else: # or delete it
+        os.remove(os.path.abspath(os.path.join(genes_temp_file.name)))
+
+
+    # --------------------------------------------------------------------------
+    #   3. FIND MOTUS FROM THE MAPPED GENES
+    # --------------------------------------------------------------------------
+    # now in matches we have the motus database ids
+
+    # load gene -> MGC
+    
+
 
 
     return 0        # success
