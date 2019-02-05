@@ -275,6 +275,8 @@ def main(argv=None):
         best_id = "no match"
         best_taxonomy = "no match"
         best_motu = "no match"
+        # dummy variable
+        all_tax = {"dummy_var": 0}
     else:
         best_id = best.split(" ")[0]
         best_taxonomy = " ".join(best.split(" ")[1:]).split("@")[0]
