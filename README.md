@@ -57,16 +57,18 @@ Fasta sequence: AWWC01.1.fsa_nt
 Consensus NCBI ID: 428712
 Consensus taxonomy: Jonquetella anthropi [C]
 Consensus mOTUs: ref_mOTU_v2_0393
-Number of detected genes: 9
+Number of detected genes: 10
+Number of mapped genes: 9
+Number of genes that map to -1: 0
 Percentage of agreeing genes: 100.0%
 
 Gene annotation: AWWC01.1.fsa_nt
 COG0016_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
 COG0012_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
 COG0541_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0525_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0552_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
 COG0172_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
+COG0552_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
+COG0525_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
 COG0533_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
 COG0495_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
 COG0018_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
@@ -88,3 +90,4 @@ The options are:
 * **`-o`** save result to a file. Default is standard output.
 * **`-m`** save the fasta sequence of the extracted marker genes.
 * **`-s`** print the result in a single line. Useful if you want to analyse many genomes and cat all the taxonomies.
+* **`-db`** choose the mOTUs database: nr=non-reduntant, cen=centroids. Default is nr.
