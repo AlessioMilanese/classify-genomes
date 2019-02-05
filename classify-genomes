@@ -44,11 +44,12 @@ Program: classify-genomes - a tool for genome taxonomy annotation
 Usage: classify-genomes <fasta_file> [options]
 
 Options:
-  -t INT     number of threads [1]
-  -v INT     verbose level: 1=error, 2=warning, 3=message, 4+=debugging [3]
-  -o FILE    output file name [stdout]
-  -m FILE    save the 10 marker genes [None]
-  -s         short output format (one-line output)
+  -t  INT     number of threads [1]
+  -v  INT     verbose level: 1=error, 2=warning, 3=message, 4+=debugging [3]
+  -o  FILE    output file name [stdout]
+  -m  FILE    save the 10 marker genes [None]
+  -s          short output format (one-line output)
+  -db STR     database: nr=non-reduntant, cen=centroids [nr]
         '''
     return str_msg
 
@@ -78,12 +79,14 @@ def main(argv=None):
     parser.add_argument('-o', action="store", dest='output', default=None, help='name of output file')
     parser.add_argument('-m', action="store", dest='save_10_MGs', default=None, help='save the 10 marker genes')
     parser.add_argument('-s', action='store_true', default=None, dest='short_output', help='print the output in only one line')
+    parser.add_argument('-db', action='store', default=None, dest='db', help='select the db (nr or centroids)',choices=['nr','cen'])
     args = parser.parse_args()
 
     # set default for args.verbose
     if (args.verbose is None): args.verbose = 3
 
     # set the default
+    if (args.db is None): args.db = "nr"
     if (args.output is None): args.output = ""
     if (args.threads is None): args.threads = 1
     if (args.save_10_MGs is None): args.save_10_MGs = ""
@@ -164,7 +167,11 @@ def main(argv=None):
     if args.verbose > 3:
         sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
 
-    map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.95 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+    if args.db == "nr":
+        map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+    else:
+        map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.centroids.reformatted.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+
     map_genesCMD = shlex.split(map_genes)
     if args.verbose > 3:
         map_genes_cmd = subprocess.Popen(map_genesCMD)
@@ -237,10 +244,17 @@ def main(argv=None):
 
     # find match for the mapped genes
     motus_match = dict()
+    n_min_1 = 0 # number of genes that maps to -1
     for i in matches:
-        motu_m = mgc2motu[gene2mgc[matches[i]]]
+        if args.db == "nr":
+            motu_m = mgc2motu[gene2mgc[matches[i]]]
+        else:
+            str_with_gene_id = ".".join(matches[i].split(".")[1].split("_"))
+            motu_m = mgc2motu[gene2mgc[str_with_gene_id]]
         if motu_m != "-1":
             motus_match[i] = tax[motu_m] + "@" + motu_m
+        else:
+            n_min_1 = n_min_1 + 1
 
     # taxonomies
     if len(motus_match) == 0:
@@ -290,6 +304,7 @@ def main(argv=None):
         outfile.write(best_motu+"\t")
         outfile.write(str(sum(founded_genes.values()))+"\t")
         outfile.write(str(sum(all_tax.values()))+"\t")
+        outfile.write(str(n_min_1)+"\t")
         outfile.write(aggr_g)
         for i in motus_match:
             outfile.write("\t"+i+"\t"+motus_match[i])
@@ -301,6 +316,7 @@ def main(argv=None):
         outfile.write("Consensus mOTUs: "+best_motu+"\n")
         outfile.write("Number of detected genes: "+str(sum(founded_genes.values()))+"\n")
         outfile.write("Number of mapped genes: "+str(sum(all_tax.values()))+"\n")
+        outfile.write("Number of genes that map to -1: "+str(n_min_1)+"\n")
         outfile.write("Percentage of agreeing genes: "+aggr_g+"\n")
         outfile.write("\nGene annotation: "+fasta_name+"\n")
         for i in motus_match:

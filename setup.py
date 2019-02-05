@@ -155,7 +155,7 @@ def main(argv=None):
     os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/bam_header_nr')))
     os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/CAMI_Sep_2015_mOTUs_2.0.0.tsv')))
     os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU-LG.map.line.tsv')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded')))
+    #os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded')))
     os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.amb')))
     os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.ann')))
     os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.annotations')))
