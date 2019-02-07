@@ -291,6 +291,10 @@ def main(argv=None):
         best_motu = "no match"
         # dummy variable
         all_tax = {"dummy_var": 0}
+    elif best == "inconsistent":
+        best_id = "inconsistent"
+        best_taxonomy = "inconsistent"
+        best_motu = "inconsistent"
     else:
         best_id = best.split(" ")[0]
         best_taxonomy = " ".join(best.split(" ")[1:]).split("@")[0]
