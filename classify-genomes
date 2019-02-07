@@ -156,6 +156,11 @@ def main(argv=None):
     # remove temp dir
     shutil.rmtree(os.path.abspath(os.path.join(genes)))
 
+    if args.verbose > 4:
+        sys.stderr.write("\nfounded_genes:\n")
+        for ii in founded_genes:
+            sys.stderr.write(str(ii)+": "+str(founded_genes[i])+"\n")
+
     ## =========================================================================
     # if genes are detected, then we map them with vsearch
     if sum(founded_genes.values()) == 0:
