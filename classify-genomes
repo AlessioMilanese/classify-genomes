@@ -156,125 +156,132 @@ def main(argv=None):
     # remove temp dir
     shutil.rmtree(os.path.abspath(os.path.join(genes)))
 
-    # --------------------------------------------------------------------------
-    #   2. MAP GENES TO DATABASE
-    # --------------------------------------------------------------------------
-    # now in genes_temp_file.name we have all the extracted genes
-    if args.verbose > 2: sys.stderr.write("Map genes to mOTUs database\n")
+    ## =========================================================================
+    # if genes are detected, then we map them with vsearch
+    if sum(founded_genes.values()) == 0:
 
-    vsearch_res = tempfile.NamedTemporaryFile(delete=False, mode="w")
-    os.chmod(vsearch_res.name, 0o644)
-    if args.verbose > 3:
-        sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
+        # --------------------------------------------------------------------------
+        #   2. MAP GENES TO DATABASE
+        # --------------------------------------------------------------------------
+        # now in genes_temp_file.name we have all the extracted genes
+        if args.verbose > 2: sys.stderr.write("Map genes to mOTUs database\n")
 
-    if args.db == "nr":
-        map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
-    else:
-        map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.centroids.reformatted.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+        vsearch_res = tempfile.NamedTemporaryFile(delete=False, mode="w")
+        os.chmod(vsearch_res.name, 0o644)
+        if args.verbose > 3:
+            sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
 
-    map_genesCMD = shlex.split(map_genes)
-    if args.verbose > 3:
-        map_genes_cmd = subprocess.Popen(map_genesCMD)
-    else:
-        map_genes_cmd = subprocess.Popen(map_genesCMD,stdout=devnull, stderr=devnull)
-    return_code = map_genes_cmd.wait()
-    if return_code:
-        sys.stderr.write("Error: vsearch failed")
-        sys.exit(1)
-
-    # parse result from vsearch
-    matches = dict()
-    tp = open(vsearch_res.name,"r")
-    for i in tp:
-        if i.startswith(" Query "):
-            query = i.rstrip().split(">")[1]
-        if i.startswith("Target "):
-            matches[query] = i.rstrip().split(">")[1]
-    tp.close()
-
-    # remove file with the results from vsearch
-    os.remove(os.path.abspath(os.path.join(vsearch_res.name)))
-
-    # decide what to do with the genes file
-    if args.save_10_MGs != "": # save it somewhere
-        try:
-            shutil.move(genes_temp_file.name,args.save_10_MGs) #It is not atomic if the files are on different filsystems.
-        except:
-            sys.stderr.write("[E::main] Error: failed to save the marker genes sequences\n")
-            os.remove(os.path.abspath(os.path.join(genes_temp_file.name)))
-    else: # or delete it
-        os.remove(os.path.abspath(os.path.join(genes_temp_file.name)))
-
-
-    # --------------------------------------------------------------------------
-    #   3. FIND MOTUS FROM THE MAPPED GENES
-    # --------------------------------------------------------------------------
-    # now in matches we have the motus database ids
-    if args.verbose > 2: sys.stderr.write("Find taxonomy\n")
-
-    # load gene -> MGC
-    f_gene2mgc = open(relative_path+"db_mOTU/mOTU.v2b.map","r")
-    gene2mgc = dict()
-    for i in f_gene2mgc:
-        all_v = i.rstrip().split("\t")
-        gene2mgc[all_v[0]] = all_v[3]
-    f_gene2mgc.close()
-    # load MGC -> mOTUs
-    f_mgc2motus = open(relative_path+"db_mOTU/mOTU-LG.map.tsv","r")
-    mgc2motu = dict()
-    for i in f_mgc2motus:
-        all_v = i.rstrip().split("\t")
-        mgc2motu[all_v[0]] = all_v[1]
-    f_mgc2motus.close()
-    # load ref-mOTUs taxonomy
-    tax = dict()
-
-    f_ref_tax = open(relative_path+"db_mOTU/prok-refdb-v11.0.0_specI-v2_taxonomy_v1.map","r")
-    for i in f_ref_tax:
-        all_v = i.rstrip().split("\t")
-        if all_v[1] != "not_profilable":
-            tax[all_v[1]] = all_v[8]
-    f_ref_tax.close()
-    # load meta-mOTUs taxonomy
-    f_meta_tax = open(relative_path+"db_mOTU/mOTULG.taxonomy","r")
-    for i in f_meta_tax:
-        all_v = i.rstrip().split("\t")
-        tax[all_v[0]] = all_v[7]
-    f_meta_tax.close()
-
-    # find match for the mapped genes
-    motus_match = dict()
-    n_min_1 = 0 # number of genes that maps to -1
-    for i in matches:
         if args.db == "nr":
-            motu_m = mgc2motu[gene2mgc[matches[i]]]
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
         else:
-            str_with_gene_id = ".".join(matches[i].split(".")[1].split("_"))
-            motu_m = mgc2motu[gene2mgc[str_with_gene_id]]
-        if motu_m != "-1":
-            motus_match[i] = tax[motu_m] + "@" + motu_m
-        else:
-            n_min_1 = n_min_1 + 1
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.centroids.reformatted.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
 
-    # taxonomies
-    if len(motus_match) == 0:
-        best = "no match"
-        aggr_g = "NA"
-    else:
-        all_tax = dict(Counter(motus_match.values()))
-        max_agree = max(all_tax.values())
-        n_max = 0
-        for i in all_tax:
-            if all_tax[i] == max_agree:
-                n_max = n_max + 1
-                best = i
-        if n_max > 1:
-            best = "inconsistent"
+        map_genesCMD = shlex.split(map_genes)
+        if args.verbose > 3:
+            map_genes_cmd = subprocess.Popen(map_genesCMD)
+        else:
+            map_genes_cmd = subprocess.Popen(map_genesCMD,stdout=devnull, stderr=devnull)
+        return_code = map_genes_cmd.wait()
+        if return_code:
+            sys.stderr.write("Error: vsearch failed")
+            sys.exit(1)
+
+        # parse result from vsearch
+        matches = dict()
+        tp = open(vsearch_res.name,"r")
+        for i in tp:
+            if i.startswith(" Query "):
+                query = i.rstrip().split(">")[1]
+            if i.startswith("Target "):
+                matches[query] = i.rstrip().split(">")[1]
+        tp.close()
+
+        # remove file with the results from vsearch
+        os.remove(os.path.abspath(os.path.join(vsearch_res.name)))
+
+        # decide what to do with the genes file
+        if args.save_10_MGs != "": # save it somewhere
+            try:
+                shutil.move(genes_temp_file.name,args.save_10_MGs) #It is not atomic if the files are on different filsystems.
+            except:
+                sys.stderr.write("[E::main] Error: failed to save the marker genes sequences\n")
+                os.remove(os.path.abspath(os.path.join(genes_temp_file.name)))
+        else: # or delete it
+            os.remove(os.path.abspath(os.path.join(genes_temp_file.name)))
+
+
+        # --------------------------------------------------------------------------
+        #   3. FIND MOTUS FROM THE MAPPED GENES
+        # --------------------------------------------------------------------------
+        # now in matches we have the motus database ids
+        if args.verbose > 2: sys.stderr.write("Find taxonomy\n")
+
+        # load gene -> MGC
+        f_gene2mgc = open(relative_path+"db_mOTU/mOTU.v2b.map","r")
+        gene2mgc = dict()
+        for i in f_gene2mgc:
+            all_v = i.rstrip().split("\t")
+            gene2mgc[all_v[0]] = all_v[3]
+        f_gene2mgc.close()
+        # load MGC -> mOTUs
+        f_mgc2motus = open(relative_path+"db_mOTU/mOTU-LG.map.tsv","r")
+        mgc2motu = dict()
+        for i in f_mgc2motus:
+            all_v = i.rstrip().split("\t")
+            mgc2motu[all_v[0]] = all_v[1]
+        f_mgc2motus.close()
+        # load ref-mOTUs taxonomy
+        tax = dict()
+
+        f_ref_tax = open(relative_path+"db_mOTU/prok-refdb-v11.0.0_specI-v2_taxonomy_v1.map","r")
+        for i in f_ref_tax:
+            all_v = i.rstrip().split("\t")
+            if all_v[1] != "not_profilable":
+                tax[all_v[1]] = all_v[8]
+        f_ref_tax.close()
+        # load meta-mOTUs taxonomy
+        f_meta_tax = open(relative_path+"db_mOTU/mOTULG.taxonomy","r")
+        for i in f_meta_tax:
+            all_v = i.rstrip().split("\t")
+            tax[all_v[0]] = all_v[7]
+        f_meta_tax.close()
+
+        # find match for the mapped genes
+        motus_match = dict()
+        n_min_1 = 0 # number of genes that maps to -1
+        for i in matches:
+            if args.db == "nr":
+                motu_m = mgc2motu[gene2mgc[matches[i]]]
+            else:
+                str_with_gene_id = ".".join(matches[i].split(".")[1].split("_"))
+                motu_m = mgc2motu[gene2mgc[str_with_gene_id]]
+            if motu_m != "-1":
+                motus_match[i] = tax[motu_m] + "@" + motu_m
+            else:
+                n_min_1 = n_min_1 + 1
+
+        # taxonomies
+        if len(motus_match) == 0:
+            best = "no match"
             aggr_g = "NA"
         else:
-            aggr_g = str( ( max_agree/(sum(all_tax.values())) ) * 100 )+"%"
+            all_tax = dict(Counter(motus_match.values()))
+            max_agree = max(all_tax.values())
+            n_max = 0
+            for i in all_tax:
+                if all_tax[i] == max_agree:
+                    n_max = n_max + 1
+                    best = i
+            if n_max > 1:
+                best = "inconsistent"
+                aggr_g = "NA"
+            else:
+                aggr_g = str( ( max_agree/(sum(all_tax.values())) ) * 100 )+"%"
 
-
+   ## =========================================================================
+   # if no genes are detected, then no need to run vsearch and map motus
+    else:
+        best = "no_genes"
 
     # general print
     if args.output != "":
@@ -295,6 +302,15 @@ def main(argv=None):
         best_id = "inconsistent"
         best_taxonomy = "inconsistent"
         best_motu = "inconsistent"
+    elif best == "no_genes":
+        best_id = "NA"
+        best_taxonomy = "NA"
+        best_motu = "NA"
+        all_tax = {"dummy_var": 0}
+        founded_genes = {"dummy_var": 0}
+        n_min_1 = 0
+        aggr_g = "0%"
+        motus_match = list()
     else:
         best_id = best.split(" ")[0]
         best_taxonomy = " ".join(best.split(" ")[1:]).split("@")[0]
@@ -322,7 +338,7 @@ def main(argv=None):
         outfile.write("Number of mapped genes: "+str(sum(all_tax.values()))+"\n")
         outfile.write("Number of genes that map to -1: "+str(n_min_1)+"\n")
         outfile.write("Percentage of agreeing genes: "+aggr_g+"\n")
-        outfile.write("\nGene annotation: "+fasta_name+"\n")
+        outfile.write("\nGene annotation:\n")
         for i in motus_match:
             outfile.write(i+"\t"+motus_match[i]+"\n")
 
