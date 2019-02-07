@@ -163,7 +163,7 @@ def main(argv=None):
 
     ## =========================================================================
     # if genes are detected, then we map them with vsearch
-    if sum(founded_genes.values()) == 0:
+    if sum(founded_genes.values()) != 0:
 
         # --------------------------------------------------------------------------
         #   2. MAP GENES TO DATABASE
