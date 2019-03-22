@@ -387,7 +387,7 @@ def runMakePaddedMG_DB(contigsFasta, outfolder, runPrefix, gffFileName, contigCo
 
 	if (len(setMGs) == 0):
 		print("No genes provided for extraction, provide parameter 'XXX=all' to extract all padded sequences for all genes.")
-		sys.exit()
+		sys.exit(1)
 
 
 	#this part is about getting the locations of the genes from either provided files or from gff files from geneprediction above
@@ -403,14 +403,14 @@ def runMakePaddedMG_DB(contigsFasta, outfolder, runPrefix, gffFileName, contigCo
 		dictExtractName2writeName = parseGeneLocations_contigCoords(setMGs, contigCoordsFileName, dictContig2Length, padLength, paddedLocationsFileName, extractLocationsFileName, geneLengthFileName, paddedLengthFileName)
 	else:
 		print("No gff or gene coordinate file provided; also gene calling disabled. Cannot parse gene locations on contigs. Exiting.")
-		sys.exit()
+		sys.exit(1)
 
 	#And now the padded sequences are actually extracted
 	if(len(dictExtractName2writeName.keys()) > 0):
 		getPaddedSequences(extractLocationsFileName, contigsFasta, paddedFastaFileName, dictExtractName2writeName)
 	else:
 		print("Could not parse gene location information properly. Exiting!")
-		sys.exit()
+		sys.exit(1)
 
 #needed files
 # contigs fasta
