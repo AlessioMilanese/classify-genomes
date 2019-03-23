@@ -162,7 +162,8 @@ def main(argv=None):
     if args.verbose > 3:
         find_genes_cmd = subprocess.Popen(find_genesCMD)
     else:
-        find_genes_cmd = subprocess.Popen(find_genesCMD,stdout=devnull, stderr=devnull)
+        dummy_file = tempfile.NamedTemporaryFile(mode="w")
+        find_genes_cmd = subprocess.Popen(find_genesCMD,stdout=dummy_file, stderr=dummy_file)
     return_code = find_genes_cmd.wait()
     if return_code:
         sys.stderr.write("[E::main] Error: extracting genes failed.\n")

@@ -363,20 +363,20 @@ def runMakePaddedMG_DB(contigsFasta, outfolder, runPrefix, gffFileName, contigCo
 
 	#first step: predict genes or not?
 	if ((not gffFileName) and (not contigCoordsFileName)):
-		print("Running prodigal...")
+		#print("Running prodigal...")
 		gffFileName = os.path.sep.join([outfolder, runPrefix + ".all.genes.gff"])
 		genesFasta = os.path.sep.join([outfolder, runPrefix + ".all.genes.fasta"])
 		proteinFasta = os.path.sep.join([outfolder, runPrefix + ".all.proteins.fasta"])
 		predictGenes(contigsFasta, metagenomicMode, transTableNumber, proteinFasta, genesFasta, gffFileName)
-		print("...done")
+		#print("...done")
 
 	#second step: search for MGs or not?
 	if (proteinFasta and not geneNamesFileName):
-		print("Running fetchMGs...")
+		#print("Running fetchMGs...")
 		#runFetchMGs(proteinFasta, genesFasta, numThreads, outMGfolder)
 		runFetchMGs(proteinFasta, genesFasta, numThreads, outMGfolder)
 		setMGs = parseFetchMGs(outMGfolder, OGType)
-		print("...done")
+		#print("...done")
 
 	if(geneNamesFileName == "all"):
 		setMGs.add("all")
