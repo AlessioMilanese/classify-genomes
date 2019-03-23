@@ -164,7 +164,9 @@ def main(argv=None):
     else:
         find_genes_cmd = subprocess.Popen(find_genesCMD,stdout=devnull, stderr=devnull)
     return_code = find_genes_cmd.wait()
-    if return_code: sys.exit(1)
+    if return_code:
+        sys.stderr.write("[E::main] Error: extracting genes failed.\n")
+        sys.exit(1)
 
     # save the genes to a file
     genes_temp_file = tempfile.NamedTemporaryFile(delete=False, mode="w")
