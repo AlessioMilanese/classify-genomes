@@ -2,6 +2,7 @@
 
 from __future__ import division
 import os
+import errno
 import sys
 import argparse
 import shlex
@@ -60,7 +61,7 @@ def is_tool(name):
         devnull = open(os.devnull)
         subprocess.Popen([name], stdout=devnull, stderr=devnull).communicate()
     except OSError as e:
-        if e.errno == os.errno.ENOENT:
+        if e.errno == errno.ENOENT:
             return False
     return True
 
@@ -105,6 +106,40 @@ def main(argv=None):
 
     # COG that we evaluate
     marker_genes = {'COG0012':0, 'COG0016':1, 'COG0018':2, 'COG0172':3, 'COG0215':4, 'COG0495':5, 'COG0525':6, 'COG0533':7, 'COG0541':8, 'COG0552':9}
+
+    # --------------------------------------------------------------------------
+    #   0. CHECK DEPENDENCIES
+    # --------------------------------------------------------------------------
+    # Perl
+    #if not is_tool("perl --version"):
+    #    sys.stderr.write("[E::main] Error: perl is not in the path. Please install perl.\n")
+    #    sys.exit(1)
+
+    # cdbtools
+    if not is_tool("cdbyank"):
+        sys.stderr.write("[E::main] Error: cdbtools is not in the path. Please install cdbtools.\n")
+        sys.exit(1)
+
+    # Prodigal
+    if not is_tool("prodigal"):
+        sys.stderr.write("[E::main] Error: prodigal is not in the path. Please install prodigal.\n")
+        sys.exit(1)
+
+    # SAMtools
+    if not is_tool("samtools"):
+        sys.stderr.write("[E::main] Error: samtools is not in the path. Please install samtools.\n")
+        sys.exit(1)
+
+    # HMMER
+    if not is_tool("hmmsearch"):
+        sys.stderr.write("[E::main] Error: hmmsearch is not in the path. Please install HMMER.\n")
+        sys.exit(1)
+
+    # vsearch
+    if not is_tool("vsearch"):
+        sys.stderr.write("[E::main] Error: vsearch is not in the path. Please install vsearch.\n")
+        sys.exit(1)
+
 
     # --------------------------------------------------------------------------
     #   1. EXTRACT GENES
