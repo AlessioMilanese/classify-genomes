@@ -215,9 +215,9 @@ def main(argv=None):
             sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
 
         if args.db == "nr":
-            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
         else:
-            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.centroids.reformatted.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --threads "+str(args.threads)
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.centroids.reformatted.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
 
         map_genesCMD = shlex.split(map_genes)
         if args.verbose > 3:
