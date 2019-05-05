@@ -154,7 +154,7 @@ def main(argv=None):
 
 
     find_genes = "python "+ relative_path + 'makePaddedMG.py ' + args.fasta_file
-    find_genes = find_genes + " " +genes+"/tmp1 tmp2 --OGType mOTU --padLength 0 --numThreads "+str(args.threads)
+    find_genes = find_genes + " " +genes+"/tmp1 tmp2 --padLength 0 --numThreads "+str(args.threads)
     if args.verbose > 3:
         sys.stderr.write("call: "+find_genes+"\n")
 
