@@ -408,9 +408,6 @@ def runMakePaddedMG_DB(contigsFasta, outfolder, runPrefix, gffFileName, contigCo
 	#And now the padded sequences are actually extracted
 	if(len(dictExtractName2writeName.keys()) > 0):
 		getPaddedSequences(extractLocationsFileName, contigsFasta, paddedFastaFileName, dictExtractName2writeName)
-	else:
-		print("Could not parse gene location information properly. Exiting!")
-		sys.exit(1)
 
 #needed files
 # contigs fasta
