@@ -1,6 +1,6 @@
 classify-genomes
 ========
-This tool classify genomes sequences (as well as metagenomic assembled genome) according to the [mOTUs taxonomy](https://github.com/motu-tool/mOTUs_v2).
+This tool classify genomes sequences (as well as metagenomic assembled genome) according to the [mOTUs taxonomy](https://github.com/motu-tool/mOTUs_v2) (mOTUs version 2.0.0).
 
 Pre-requisites
 --------------
@@ -12,7 +12,7 @@ Pre-requisites
 * HMMER 3.1b2
 * vsearch
 
-If you have [conda](https://conda.io/docs/), you can install the dependencies and create an enviroment (after cloning the directory, see Installation):
+If you have [conda](https://conda.io/docs/), you can install the dependencies and create an environment (after cloning the directory, see Installation):
 ```bash
 cd classify-genomes/env
 conda env create -f classify-genomes.yaml
