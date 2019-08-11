@@ -305,6 +305,7 @@ def main(argv=None):
             if args.map_to_specI:
                 if motu_m.startswith("meta"):
                     motu_m = "-1"
+                    n_min_1 = n_min_1 + 1
 
             # assign correct match
             if motu_m != "-1":
