@@ -90,4 +90,5 @@ The options are:
 * **`-o`** save result to a file. Default is standard output.
 * **`-m`** save the fasta sequence of the extracted marker genes.
 * **`-s`** print the result in a single line. Useful if you want to analyse many genomes and cat all the taxonomies.
+* **`-S`** map to the specI database (default: map to the mOTUs database)
 * **`-db`** choose the mOTUs database: nr=non-reduntant, cen=centroids. Default is nr.
