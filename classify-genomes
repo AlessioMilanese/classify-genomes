@@ -215,9 +215,9 @@ def main(argv=None):
             sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
 
         if args.db == "nr":
-            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.nr.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/db_mOTU_DB_NR.fasta --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
         else:
-            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/mOTU.v2b.centroids.reformatted.padded --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/db_mOTU_DB_CEN.fasta --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
 
         map_genesCMD = shlex.split(map_genes)
         if args.verbose > 3:
@@ -260,14 +260,14 @@ def main(argv=None):
         if args.verbose > 2: sys.stderr.write("Find taxonomy\n")
 
         # load gene -> MGC
-        f_gene2mgc = open(relative_path+"db_mOTU/mOTU.v2b.map","r")
+        f_gene2mgc = open(relative_path+"db_mOTU/db_mOTU_MAP_genes_to_MGCs.tsv","r")
         gene2mgc = dict()
         for i in f_gene2mgc:
             all_v = i.rstrip().split("\t")
             gene2mgc[all_v[0]] = all_v[3]
         f_gene2mgc.close()
         # load MGC -> mOTUs
-        f_mgc2motus = open(relative_path+"db_mOTU/mOTU-LG.map.tsv","r")
+        f_mgc2motus = open(relative_path+"db_mOTU/db_mOTU_MAP_MGCs_to_mOTUs.tsv","r")
         mgc2motu = dict()
         for i in f_mgc2motus:
             all_v = i.rstrip().split("\t")
@@ -276,14 +276,14 @@ def main(argv=None):
         # load ref-mOTUs taxonomy
         tax = dict()
 
-        f_ref_tax = open(relative_path+"db_mOTU/prok-refdb-v11.0.0_specI-v2_taxonomy_v1.map","r")
+        f_ref_tax = open(relative_path+"db_mOTU/db_mOTU_taxonomy_ref-mOTUs.tsv","r")
         for i in f_ref_tax:
             all_v = i.rstrip().split("\t")
             if all_v[1] != "not_profilable":
                 tax[all_v[1]] = all_v[8]
         f_ref_tax.close()
         # load meta-mOTUs taxonomy
-        f_meta_tax = open(relative_path+"db_mOTU/mOTULG.taxonomy","r")
+        f_meta_tax = open(relative_path+"db_mOTU/db_mOTU_taxonomy_meta-mOTUs.tsv","r")
         for i in f_meta_tax:
             all_v = i.rstrip().split("\t")
             tax[all_v[0]] = all_v[7]

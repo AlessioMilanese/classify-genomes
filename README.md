@@ -55,26 +55,26 @@ Find taxonomy
 RESULT:
 Fasta sequence: AWWC01.1.fsa_nt
 Consensus NCBI ID: 428712
-Consensus taxonomy: Jonquetella anthropi [C]
-Consensus mOTUs: ref_mOTU_v2_0393
+Consensus taxonomy: Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]
+Consensus mOTUs: ref_mOTU_v25_01951
 Number of detected genes: 10
 Number of mapped genes: 9
 Number of genes that map to -1: 0
 Percentage of agreeing genes: 100.0%
 
-Gene annotation: AWWC01.1.fsa_nt
-COG0016_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0012_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0541_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0172_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0552_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0525_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0533_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0495_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
-COG0018_1	428712 Jonquetella anthropi [C]@ref_mOTU_v2_0393
+Gene annotation:
+COG0016_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0012_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0541_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0525_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0552_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0172_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0533_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0495_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
+COG0018_1	428712 Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella anthropi]@ref_mOTU_v25_01951
 ```
 
-Let's analyse the result: the genome in the file `AWWC01.1.fsa_nt` is annotated as `Jonquetella anthropi [C]` with a NCBI taxonomy id equal to `428712`, which belongs to the mOTU `ref_mOTU_v2_0393`. The genome contains `9` marker genes (MGs) out of 10. The marker genes have the property to be present in single-copy in bacterial genomes, hence if the tool extract more than 10 MGs there might be problems with the genome that you are analysing. After that there is the information of the number of genes that support the consensus taxonomy (in this case `100%`). Finally, there is a list with the annotation of all the genes.  
+Let's analyse the result: the genome in the file `AWWC01.1.fsa_nt` is annotated as `Jonquetella anthropi` with a NCBI taxonomy id equal to `428712`, which belongs to the mOTU `ref_mOTU_v25_01951`. The genome contains `9` marker genes (MGs) out of 10. The marker genes have the property to be present in single-copy in bacterial genomes, hence if the tool extract more than 10 MGs there might be problems with the genome that you are analysing. After that there is the information of the number of genes that support the consensus taxonomy (in this case `100%`). Finally, there is a list with the annotation of all the genes.  
 
 Command options
 --------------

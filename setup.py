@@ -7,10 +7,10 @@
 #
 # ============================================================================ #
 
-motus_version = "2.0.1"
-link_db = "https://zenodo.org/record/1402405/files/db_mOTU_v2.0.1.tar.gz"
-md5_db = "cc48ae0a309fdd97f17c3d0faff57924"
-DOI_db = "10.5281/zenodo.1402405"
+motus_version = "2.5.0"
+link_db = "https://zenodo.org/record/3364101/files/db_mOTU_v2.5.0.tar.gz"
+md5_db = "f533a7b55fc133589f08f50648548b42"
+DOI_db = "10.5281/zenodo.3364101"
 
 import os
 import sys
@@ -151,27 +151,26 @@ def main(argv=None):
     sys.stderr.write("done\n")
 
     # remove files that are not used
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/bam_header_cen')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/bam_header_nr')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/CAMI_Sep_2015_mOTUs_2.0.0.tsv')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU-LG.map.line.tsv')))
-    #os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.amb')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.ann')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.annotations')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.bwt')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.pac')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.centroids.reformatted.padded.sa')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.genes.len')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.nr.padded.amb')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.nr.padded.ann')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.nr.padded.bwt')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.nr.padded.pac')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.nr.padded.sa')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.padded.coords')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/mOTU.v2b.padded.coords_for_centroids')))
-    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/short_names.txt')))
-    shutil.rmtree(os.path.abspath(os.path.join(relative_path, 'db_mOTU/test')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_bam_header_CEN')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_bam_header_NR')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_taxonomy_CAMI.tsv')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_MAP_MGCs_to_mOTUs_in-line.tsv')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_CEN.fasta.amb')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_CEN.fasta.ann')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_CEN.fasta.annotations')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_CEN.fasta.bwt')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_CEN.fasta.pac')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_CEN.fasta.sa')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_genes_length_NR')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_NR.fasta.amb')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_NR.fasta.ann')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_NR.fasta.bwt')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_NR.fasta.pac')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_DB_NR.fasta.sa')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_padding_coordinates_NR.tsv')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_padding_coordinates_CEN.tsv')))
+    os.remove(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_taxonomy_ref-mOTUs_short_names.tsv')))
+    shutil.rmtree(os.path.abspath(os.path.join(relative_path, 'db_mOTU/db_mOTU_test')))
 
     return 0        # success
 
