@@ -212,15 +212,25 @@ def main(argv=None):
         # now in genes_temp_file.name we have all the extracted genes
         if args.verbose > 2: sys.stderr.write("Map genes to mOTUs database\n")
 
+        # load COG cutoffs
+        if args.verbose > 4: sys.stderr.write("  load cutoffs\n")
+        all_cutoffs = dict()
+        cutoff_f = open(relative_path+"lib/cutoffs_specI_40MGs_new.txt","r")
+        for i in cutoff_f:
+            all_v = i.rstrip().split("\t")
+            all_cutoffs[all_v[0]] = float(all_v[1])
+        cutoff_f.close()
+
+
         vsearch_res = tempfile.NamedTemporaryFile(delete=False, mode="w")
         os.chmod(vsearch_res.name, 0o644)
         if args.verbose > 3:
             sys.stderr.write("temp file with result from vsearch: "+vsearch_res.name+"\n")
 
         if args.db == "nr":
-            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/db_mOTU_DB_NR.fasta --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/db_mOTU_DB_NR.fasta --id 0.94 --blast6out "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
         else:
-            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/db_mOTU_DB_CEN.fasta --id 0.965 --alnout "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
+            map_genes = "vsearch --usearch_global "+genes_temp_file.name+" --db "+relative_path+"db_mOTU/db_mOTU_DB_CEN.fasta --id 0.94 --blast6out "+vsearch_res.name+" --minqt 0.7 --maxrejects 10000 --threads "+str(args.threads)
 
         map_genesCMD = shlex.split(map_genes)
         if args.verbose > 3:
@@ -234,12 +244,17 @@ def main(argv=None):
 
         # parse result from vsearch
         matches = dict()
+        all_matched_perc_id = dict()
         tp = open(vsearch_res.name,"r")
         for i in tp:
-            if i.startswith(" Query "):
-                query = i.rstrip().split(">")[1]
-            if i.startswith("Target "):
-                matches[query] = i.rstrip().split(">")[1]
+            vals = i.rstrip().split("\t")
+            all_matched_perc_id[vals[0]] = vals[2]
+            i_cog_type = vals[0].split("_")[0]
+            perc_id = float(vals[2])
+            if perc_id > all_cutoffs[i_cog_type]:
+                # add
+                query = vals[0]
+                matches[query] = vals[1]
         tp.close()
 
         # remove file with the results from vsearch
@@ -374,26 +389,38 @@ def main(argv=None):
         outfile.write(fasta_name+"\t")
         outfile.write(best_id+"\t")
         outfile.write(best_taxonomy+"\t")
-        outfile.write(best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\t")
+        if args.map_to_specI:
+            outfile.write(best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\t")
+        else:
+            outfile.write(best_motu+"\t")
         outfile.write(str(sum(founded_genes.values()))+"\t")
         outfile.write(str(sum(all_tax.values()))+"\t")
         outfile.write(str(n_min_1)+"\t")
         outfile.write(aggr_g)
         for i in motus_match:
-            outfile.write("\t"+i+"\t"+motus_match[i].replace("ref_mOTU_v25_","specI_v3_"))
+            if args.map_to_specI:
+                outfile.write("\t"+i+"\t"+all_matched_perc_id[i]+"\t"+motus_match[i].replace("ref_mOTU_v25_","specI_v3_"))
+            else:
+                outfile.write("\t"+i+"\t"+all_matched_perc_id[i]+"\t"+motus_match[i])
         outfile.write("\n")
     else:
         outfile.write("Fasta sequence: "+fasta_name+"\n")
         outfile.write("Consensus NCBI ID: "+best_id+"\n")
         outfile.write("Consensus taxonomy: "+best_taxonomy+"\n")
-        outfile.write("Consensus mOTUs: "+best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\n")
+        if args.map_to_specI:
+            outfile.write("Consensus mOTUs: "+best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\n")
+        else:
+            outfile.write("Consensus mOTUs: "+best_motu+"\n")
         outfile.write("Number of detected genes: "+str(sum(founded_genes.values()))+"\n")
         outfile.write("Number of mapped genes: "+str(sum(all_tax.values()))+"\n")
         outfile.write("Number of genes that map to -1: "+str(n_min_1)+"\n")
         outfile.write("Percentage of agreeing genes: "+aggr_g+"\n")
         outfile.write("\nGene annotation:\n")
         for i in motus_match:
-            outfile.write(i+"\t"+motus_match[i].replace("ref_mOTU_v25_","specI_v3_")+"\n")
+            if args.map_to_specI:
+                outfile.write(i+"\t"+all_matched_perc_id[i]+"\t"+motus_match[i].replace("ref_mOTU_v25_","specI_v3_")+"\n")
+            else:
+                outfile.write(i+"\t"+all_matched_perc_id[i]+"\t"+motus_match[i]+"\n")
 
     # move the temp file to the final destination ------------------------------
     if args.output != "":
