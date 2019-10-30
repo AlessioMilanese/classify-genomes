@@ -375,8 +375,9 @@ def runMakePaddedMG_DB(contigsFasta, outfolder, runPrefix, gffFileName, contigCo
 		#print("Running fetchMGs...")
 		#runFetchMGs(proteinFasta, genesFasta, numThreads, outMGfolder)
 		runFetchMGs(proteinFasta, genesFasta, numThreads, outMGfolder)
-		setMGs = parseFetchMGs(outMGfolder, OGType)
+		#setMGs = parseFetchMGs(outMGfolder, OGType)
 		#print("...done")
+        sys.exit(0) # AFTER RUNNING FETCH_MG WE EXIT -------------- MODIFIED FOR PROGENOMES
 
 	if(geneNamesFileName == "all"):
 		setMGs.add("all")
