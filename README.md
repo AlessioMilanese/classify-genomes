@@ -59,7 +59,6 @@ Consensus taxonomy: Jonquetella anthropi [Jonquetella sp. BV3C21/Jonquetella ant
 Consensus mOTUs: ref_mOTU_v25_01951
 Number of detected genes: 10
 Number of mapped genes: 9
-Number of genes that map to -1: 0
 Percentage of agreeing genes: 100.0%
 
 Gene annotation:

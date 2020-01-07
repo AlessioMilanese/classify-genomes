@@ -359,7 +359,7 @@ def main(argv=None):
         outfile = sys.stdout
         if args.verbose > 2: sys.stderr.write("\nRESULT:\n")
 
-    # split best into NCBI_id, NCBI_taxonomy and mOTU
+    # split best into NCBI_id, NCBI_taxonomy and mOTU --------------------------
     if best == "no match":
         best_id = "no match"
         best_taxonomy = "no match"
@@ -384,7 +384,14 @@ def main(argv=None):
         best_taxonomy = " ".join(best.split(" ")[1:]).split("@")[0]
         best_motu = best.split("@")[1]
 
+    # FIND NUMBER OF GENES IN THE DIFFERENT CATEGORIES -------------------------
+    #   for the number of detected genes, we are not interested to the ones that
+    #   map to -1
+    n_detected_genes = sum(founded_genes.values()) - n_min_1
+    # number of mapped genes
+    n_mapped_genes = sum(all_tax.values())
 
+    # PRINT ONE-LINE VERSION ---------------------------------------------------
     if args.short_output: # print res in one line
         outfile.write(fasta_name+"\t")
         outfile.write(best_id+"\t")
@@ -393,9 +400,8 @@ def main(argv=None):
             outfile.write(best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\t")
         else:
             outfile.write(best_motu+"\t")
-        outfile.write(str(sum(founded_genes.values()))+"\t")
-        outfile.write(str(sum(all_tax.values()))+"\t")
-        outfile.write(str(n_min_1)+"\t")
+        outfile.write(str(n_detected_genes)+"\t")
+        outfile.write(str(n_mapped_genes)+"\t")
         outfile.write(aggr_g)
         for i in motus_match:
             if args.map_to_specI:
@@ -403,6 +409,8 @@ def main(argv=None):
             else:
                 outfile.write("\t"+i+"\t"+all_matched_perc_id[i]+"\t"+motus_match[i])
         outfile.write("\n")
+
+    # PRINT LONG VERSION -------------------------------------------------------
     else:
         outfile.write("Fasta sequence: "+fasta_name+"\n")
         outfile.write("Consensus NCBI ID: "+best_id+"\n")
@@ -411,9 +419,8 @@ def main(argv=None):
             outfile.write("Consensus mOTUs: "+best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\n")
         else:
             outfile.write("Consensus mOTUs: "+best_motu+"\n")
-        outfile.write("Number of detected genes: "+str(sum(founded_genes.values()))+"\n")
-        outfile.write("Number of mapped genes: "+str(sum(all_tax.values()))+"\n")
-        outfile.write("Number of genes that map to -1: "+str(n_min_1)+"\n")
+        outfile.write("Number of detected genes: "+str(n_detected_genes)+"\n")
+        outfile.write("Number of mapped genes: "+str(n_mapped_genes)+"\n")
         outfile.write("Percentage of agreeing genes: "+aggr_g+"\n")
         outfile.write("\nGene annotation:\n")
         for i in motus_match:
