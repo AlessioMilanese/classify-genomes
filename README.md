@@ -82,7 +82,9 @@ Let's analyse the result: the genome in the file `AWWC01.1.fsa_nt` is annotated 
 
 The genome is `Consistent` in its annotation (based on the marker genes), and we provide a confidence on the annotation (see more info on [Estimate correctness of the assignment](https://github.com/AlessioMilanese/classify-genomes#estimate-correctness-of-the-assignment)).
 
-The genome contains `10` marker genes (MGs) out of 10. The marker genes have the property to be present in single-copy in bacterial genomes, hence if the tool extract more than 10 MGs there might be problems with the genome that you are analysing. After that there is the information of the number of genes that were mapped to the mOTUs database (`Number of mapped genes`) and the number of genes that support the consensus taxonomy `Number of agreeing genes` (as well as how much percentage of the found ones they represents, in this case `100%`). In the case above, `10` genes were detected in the genome and `9` mapped to the mOTUs database. All the `9` mapped genes agrees on the same annotation (`Number of agreeing genes`).
+The genome contains `10` marker genes (MGs) out of 10. The marker genes have the property to be present in single-copy in bacterial genomes, hence if the tool extract more than 10 MGs there might be problems with the genome that you are analysing. After that there is the information of the number of genes that were mapped to the mOTUs database (`Number of mapped genes`) and the number of genes that support the consensus taxonomy `Number of agreeing genes` (as well as how much percentage of the found ones they represents, in this case `100%`). In the case above, `10` genes were detected in the genome and `9` mapped to the mOTUs database. All the `9` mapped genes agrees on the same annotation (`Number of agreeing genes`). Check the following example:
+
+![alt text](https://github.com/AlessioMilanese/classify-genomes/blob/master/pics/explain_gene_numbers.png)
 
 Finally, there is a list with all the identified genes, the target gene in the mOTUs database and the percentage identity.
 
