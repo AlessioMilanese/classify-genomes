@@ -387,7 +387,7 @@ def main(argv=None):
     # FIND NUMBER OF GENES IN THE DIFFERENT CATEGORIES -------------------------
     #   for the number of detected genes, we are not interested to the ones that
     #   map to -1
-    n_detected_genes = sum(founded_genes.values()) - n_min_1
+    n_detected_genes = sum(founded_genes.values())
     # number of mapped genes
     n_mapped_genes = sum(all_tax.values())
 
