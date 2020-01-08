@@ -345,6 +345,7 @@ def main(argv=None):
                 aggr_g = "NA"
             else:
                 aggr_g = str( ( max_agree/(sum(all_tax.values())) ) * 100 )+"%"
+                n_aggr_g = max_agree
 
    ## =========================================================================
    # if no genes are detected, then no need to run vsearch and map motus
@@ -390,6 +391,43 @@ def main(argv=None):
     n_detected_genes = sum(founded_genes.values())
     # number of mapped genes
     n_mapped_genes = sum(all_tax.values())
+    # number of agreeing genes
+    n_agreeing_genes = n_aggr_g
+
+    # CONFIDENCE OF THE ANNOTATION ---------------------------------------------
+    annotation_type = "Consistent"
+    if best_motu == "NA": annotation_type = "No genes"
+    if best_motu == "inconsistent": annotation_type = "Inconsistent"
+    if best_motu == "no match": annotation_type = "No match"
+
+    confidence_val = "0"
+    if annotation_type == "Consistent":
+        if n_mapped_genes > 10 or n_agreeing_genes > 10:
+            confidence_val = "99.9" # to be changed here if the Confidence values change --------------------
+        else:
+            # if both values are below 11, then we retrive them from the file
+            # NOTE: the file is under the directory lib and not under the
+            # database directory. This is because the database dir is the same
+            # as the mOTUs database and we cannot add those values.
+            try:
+                o = open(relative_path+"lib/confidence_values","r")
+                o.readline() # remove header
+                for i in o:
+                    vals = i.rstrip().split("\t")
+                    # vals = [n_agreeing,n_mapped,confidence_score]
+                    if str(vals[0]) == str(n_agreeing_genes):
+                        if str(vals[1]) == str(n_mapped_genes):
+                            confidence_val = str(vals[2])
+                o.close()
+                if confidence_val == "0":
+                    # it means that there was an error, and we didn't find the
+                    # value in the file
+                    if args.verbose > 1:
+                        sys.stderr.write("[W::warning] Error: confidence value not found\n")
+            except:
+                if args.verbose > 1:
+                    sys.stderr.write("[W::warning] Error: failed to parse confidence value\n")
+
 
     # PRINT ONE-LINE VERSION ---------------------------------------------------
     if args.short_output: # print res in one line
@@ -400,8 +438,11 @@ def main(argv=None):
             outfile.write(best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\t")
         else:
             outfile.write(best_motu+"\t")
+        outfile.write(annotation_type+"\t")
+        outfile.write(confidence_val+"\t")
         outfile.write(str(n_detected_genes)+"\t")
         outfile.write(str(n_mapped_genes)+"\t")
+        outfile.write(str(n_agreeing_genes)+"\t")
         outfile.write(aggr_g)
         for i in motus_match:
             if args.map_to_specI:
@@ -419,8 +460,13 @@ def main(argv=None):
             outfile.write("Consensus mOTUs: "+best_motu.replace("ref_mOTU_v25_","specI_v3_")+"\n")
         else:
             outfile.write("Consensus mOTUs: "+best_motu+"\n")
+        outfile.write("\n")
+        outfile.write("Annotation: "+annotation_type+"\n")
+        outfile.write("Confidence: "+confidence_val+"%\n")
+        outfile.write("\n")
         outfile.write("Number of detected genes: "+str(n_detected_genes)+"\n")
         outfile.write("Number of mapped genes: "+str(n_mapped_genes)+"\n")
+        outfile.write("Number of agreeing genes: "+str(n_agreeing_genes)+"\n")
         outfile.write("Percentage of agreeing genes: "+aggr_g+"\n")
         outfile.write("\nGene annotation:\n")
         for i in motus_match:
