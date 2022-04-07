@@ -160,7 +160,7 @@ def main(argv=None):
     # count the number of founded genes
     founded_genes = {'COG0012':0, 'COG0016':0, 'COG0018':0, 'COG0172':0, 'COG0215':0, 'COG0495':0, 'COG0525':0, 'COG0533':0, 'COG0541':0, 'COG0552':0}
 
-    if not args.input_MGs:
+    if args.input_MGs:
         # if the input are genes and not a genome,
         # we go through the file and save it in a new one
         # save the genes to a file
@@ -185,7 +185,7 @@ def main(argv=None):
         genes_temp_file.flush()
         os.fsync(genes_temp_file.fileno())
         genes_temp_file.close()
-        
+
     # ----------------
     if not args.input_MGs:
         # if the input is a genome
