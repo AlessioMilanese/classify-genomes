@@ -145,3 +145,14 @@ The options are:
 * **`-s`** print the result in a single line. Useful if you want to analyse many genomes and cat all the taxonomies.
 * **`-S`** map to the specI database (default: map to the mOTUs database)
 * **`-db`** choose the mOTUs database: nr=non-reduntant, cen=centroids. Default is nr.
+* **`-M`** Select this if you want to give as input a multi-fasta file with predicted genes instead of a genome fasta file. Note that in the header of the fasta sequences there should be the COG ID. Within the code I will grep for the ten marker gene COG ID. For example, the fasta file should look like:
+```
+>COG0012_test1
+ACGATCATCTATCGATCGACGTATCGATGCATCGA [...]
+>genomeCOG0018_test2
+ACGGTACTATGCATCGATCGATTCGATCGATTATC [...]
+>a_random_gene
+AGCAGTTGCGATTTATCGACTAGCGGGATTTTTCA [...]
+```
+
+where the first two genes are recognised (`COG0012` and `COG0018` respectively) and the third gene is ignored.
