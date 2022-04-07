@@ -13,6 +13,7 @@ import glob
 import multiprocessing
 import tempfile
 from collections import Counter
+import re
 
 
 # position of the script -------------------------------------------------------
@@ -52,6 +53,7 @@ Options:
   -s          short output format (one-line output)
   -S          map to specI, instead of mOTUs
   -db STR     database: nr=non-reduntant, cen=centroids [nr]
+  -M          input <fasta_file> are marker genes instead of a genome
         '''
     return str_msg
 
@@ -83,6 +85,7 @@ def main(argv=None):
     parser.add_argument('-s', action='store_true', default=None, dest='short_output', help='print the output in only one line')
     parser.add_argument('-S', action='store_true', default=None, dest='map_to_specI', help='map to specI, instead of mOTUs')
     parser.add_argument('-db', action='store', default=None, dest='db', help='select the db (nr or centroids)',choices=['nr','cen'])
+    parser.add_argument('-M', action='store_true', default=None, dest='input_MGs', help='select if the inputs are marker genes')
     args = parser.parse_args()
 
     # set default for args.verbose
@@ -95,6 +98,7 @@ def main(argv=None):
     if (args.save_10_MGs is None): args.save_10_MGs = ""
     if (args.short_output is None): args.short_output = False
     if (args.map_to_specI is None): args.map_to_specI = False
+    if (args.input_MGs is None): args.input_MGs = False
 
     # name fasta file
     fasta_name = args.fasta_file.split("/")[-1]
@@ -150,60 +154,88 @@ def main(argv=None):
     # create a temp dir to save the intermediate results
     if args.verbose > 2: sys.stderr.write("Extract genes\n")
 
-    genes = tempfile.mkdtemp()
-
     # set number of agreeing genes to zero
     n_aggr_g = 0
 
     # count the number of founded genes
     founded_genes = {'COG0012':0, 'COG0016':0, 'COG0018':0, 'COG0172':0, 'COG0215':0, 'COG0495':0, 'COG0525':0, 'COG0533':0, 'COG0541':0, 'COG0552':0}
 
+    if not args.input_MGs:
+        # if the input are genes and not a genome,
+        # we go through the file and save it in a new one
+        # save the genes to a file
+        genes_temp_file = tempfile.NamedTemporaryFile(delete=False, mode="w")
+        os.chmod(genes_temp_file.name, 0o644)
 
-    find_genes = "python "+ relative_path + 'makePaddedMG.py ' + args.fasta_file
-    find_genes = find_genes + " " +genes+"/tmp1 tmp2 --padLength 0 --numThreads "+str(args.threads)
-    if args.verbose > 3:
-        sys.stderr.write("call: "+find_genes+"\n")
-
-    find_genesCMD = shlex.split(find_genes)
-    if args.verbose > 3:
-        find_genes_cmd = subprocess.Popen(find_genesCMD)
-    else:
-        dummy_file = tempfile.NamedTemporaryFile(mode="w")
-        find_genes_cmd = subprocess.Popen(find_genesCMD,stdout=dummy_file, stderr=dummy_file)
-    return_code = find_genes_cmd.wait()
-    if return_code:
-        sys.stderr.write("[E::main] Error: extracting genes failed.\n")
-        sys.exit(1)
-
-    # save the genes to a file
-    genes_temp_file = tempfile.NamedTemporaryFile(delete=False, mode="w")
-    os.chmod(genes_temp_file.name, 0o644)
-    if args.verbose > 3:
-        sys.stderr.write("temp file with genes: "+genes_temp_file.name+"\n")
-
-    for i in marker_genes:
-        file_g = open(genes+"/tmp1/tmp2_markerGenes/"+i+".fna","r")
-        cont = 1
-        for k in file_g:
-            if k.startswith(">"):
-                genes_temp_file.write(">"+i+"_"+str(cont)+"\n")
-                cont = cont + 1
-                founded_genes[i] = founded_genes[i] + 1 # update dict with the number of founded genes
+        o = open(args.fasta_file,"r")
+        for line in o:
+            if line.startswith(">"):
+                to_print = False
+                for MG in founded_genes:
+                    if re.search(MG, line):
+                        to_print = True
+                        founded_genes[MG] = founded_genes[MG] + 1
+                        genes_temp_file.write(">"+MG+"_"+str(founded_genes[MG])+"\n")
             else:
-                genes_temp_file.write(k)
+                if to_print:
+                    genes_temp_file.write(line)
+        o.close()
 
-    # close the temp file (but not deleted)
-    genes_temp_file.flush()
-    os.fsync(genes_temp_file.fileno())
-    genes_temp_file.close()
+        # close the temp file (but not deleted)
+        genes_temp_file.flush()
+        os.fsync(genes_temp_file.fileno())
+        genes_temp_file.close()
+        
+    # ----------------
+    if not args.input_MGs:
+        # if the input is a genome
+        genes = tempfile.mkdtemp()
 
-    # remove temp dir
-    shutil.rmtree(os.path.abspath(os.path.join(genes)))
+        find_genes = "python "+ relative_path + 'makePaddedMG.py ' + args.fasta_file
+        find_genes = find_genes + " " +genes+"/tmp1 tmp2 --padLength 0 --numThreads "+str(args.threads)
+        if args.verbose > 3:
+            sys.stderr.write("call: "+find_genes+"\n")
+
+        find_genesCMD = shlex.split(find_genes)
+        if args.verbose > 3:
+            find_genes_cmd = subprocess.Popen(find_genesCMD)
+        else:
+            dummy_file = tempfile.NamedTemporaryFile(mode="w")
+            find_genes_cmd = subprocess.Popen(find_genesCMD,stdout=dummy_file, stderr=dummy_file)
+        return_code = find_genes_cmd.wait()
+        if return_code:
+            sys.stderr.write("[E::main] Error: extracting genes failed.\n")
+            sys.exit(1)
+
+        # save the genes to a file
+        genes_temp_file = tempfile.NamedTemporaryFile(delete=False, mode="w")
+        os.chmod(genes_temp_file.name, 0o644)
+        if args.verbose > 3:
+            sys.stderr.write("temp file with genes: "+genes_temp_file.name+"\n")
+
+        for i in marker_genes:
+            file_g = open(genes+"/tmp1/tmp2_markerGenes/"+i+".fna","r")
+            cont = 1
+            for k in file_g:
+                if k.startswith(">"):
+                    genes_temp_file.write(">"+i+"_"+str(cont)+"\n")
+                    cont = cont + 1
+                    founded_genes[i] = founded_genes[i] + 1 # update dict with the number of founded genes
+                else:
+                    genes_temp_file.write(k)
+
+        # close the temp file (but not deleted)
+        genes_temp_file.flush()
+        os.fsync(genes_temp_file.fileno())
+        genes_temp_file.close()
+
+        # remove temp dir
+        shutil.rmtree(os.path.abspath(os.path.join(genes)))
 
     if args.verbose > 4:
         sys.stderr.write("\nfounded_genes:\n")
         for ii in founded_genes:
-            sys.stderr.write(str(ii)+": "+str(founded_genes[i])+"\n")
+            sys.stderr.write(str(ii)+": "+str(founded_genes[ii])+"\n")
 
     ## =========================================================================
     # if genes are detected, then we map them with vsearch
